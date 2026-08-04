@@ -147,3 +147,13 @@ function GoalIssuesSurface({ context }: { context: { companyId: string | null; e
 export function GoalIssuesDetailTab({ context }: PluginDetailTabProps) {
   return <GoalIssuesSurface context={context} />;
 }
+
+export function GoalIssuesTabBadge({ context }: PluginDetailTabProps) {
+  const { data, loading } = usePluginData<GoalIssuesData>("goal-issues", {
+    companyId: context.companyId,
+    goalId: context.entityId,
+  });
+
+  if (loading && !data) return <span aria-label="Loading related issue count">(…)</span>;
+  return <span aria-label={`${data?.related.length ?? 0} related issues`}>({data?.related.length ?? 0})</span>;
+}

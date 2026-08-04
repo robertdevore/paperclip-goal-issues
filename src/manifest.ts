@@ -32,6 +32,7 @@ const manifest: PaperclipPluginManifestV1 = {
         id: "goal-issues-detail-tab",
         displayName: "Related Issues",
         exportName: "GoalIssuesDetailTab",
+        badgeExportName: "GoalIssuesTabBadge",
         entityTypes: ["goal"],
         order: 40
       }

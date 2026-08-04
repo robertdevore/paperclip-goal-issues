@@ -31,7 +31,7 @@ describe("goal issues plugin", () => {
       "goals.read", "issues.read", "ui.detailTab.register",
     ]));
     expect(manifest.ui?.slots).toEqual([
-      expect.objectContaining({ type: "detailTab", entityTypes: ["goal"] }),
+      expect.objectContaining({ type: "detailTab", entityTypes: ["goal"], badgeExportName: "GoalIssuesTabBadge" }),
     ]);
   });
 
