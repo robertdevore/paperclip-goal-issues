@@ -1,10 +1,10 @@
 # Paperclip core requirements
 
-These are the only core capabilities needed to make this plugin feel native. The plugin is usable without them through its company sidebar page.
+These are the remaining core capabilities needed to make this plugin scale well. The goal detail surface is now implemented on the Paperclip development branch.
 
-## 1. Render goal detail plugin slots
+## 1. Render goal detail plugin slots — implemented
 
-The SDK and manifest schema already support `detailTab` slots with `entityTypes: ["goal"]`, but the current `GoalDetail` page does not render a plugin slot outlet. Paperclip should render the standard detail-tab outlet in the goal detail layout and pass the active company ID, company prefix, goal ID, and entity type.
+The Paperclip development branch now renders goal `detailTab` contributions in the Goals detail page and passes the active company ID, company prefix, goal ID, and entity type.
 
 Suggested contract:
 
@@ -28,11 +28,11 @@ The worker issue client can list issues by company, project, assignee, status, o
 
 The matching UI `IssuesListFilters` and host bridge filter should also accept `goalId` if the host intends plugins to reuse the native issue list component.
 
-## Current plugin workaround
+## Current plugin behavior
 
 Until those capabilities exist, this plugin:
 
 - reads native `issue.goalId` values by paging the company issue list;
 - stores additional relationships in its isolated plugin database namespace;
-- exposes the complete workflow from `/goal-issues` under the company sidebar;
-- declares the goal detail slot so it will render automatically once the host mounts that slot.
+- exposes the complete workflow from the goal detail page's `Related Issues` tab;
+- stores extra relationships in the plugin namespace while preserving native `issue.goalId` links.

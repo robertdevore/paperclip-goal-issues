@@ -1,22 +1,20 @@
 # Goal Issues
 
-Goal Issues is an external Paperclip plugin that adds a company-scoped Goal Issues page. It shows issues linked to a goal through Paperclip's native `issues.goal_id` field and lets operators add extra plugin-owned links without changing Paperclip core.
+Goal Issues is an external Paperclip plugin that adds a Related Issues tab to Paperclip's goal detail page. It shows issues linked to a goal through Paperclip's native `issues.goal_id` field and lets operators add extra plugin-owned links without changing the plugin's data model in Paperclip core.
 
 ## What it provides
 
-- A `Goal Issues` company sidebar entry and page at `/goal-issues`.
+- A `Related Issues` tab on the goal detail page.
 - Goal selection, related-issue display, issue navigation, search, link, unlink, and refresh.
 - Native goal links are shown automatically as `Paperclip goal link`.
 - Extra relationships are stored in the plugin's isolated database namespace as `Plugin link`.
 - A `detailTab` contribution for goals is declared for hosts that render goal detail slots.
 
-## Current host limitation
-
-The current Paperclip `GoalDetail` page does not render the plugin `detailTab` slot, even though the SDK and manifest contract support `entityTypes: ["goal"]`. Therefore the plugin cannot currently place its panel directly inside the core goal page without a Paperclip core change. The sidebar page is the complete usable fallback and keeps all plugin behavior outside core.
+The Paperclip core branch now mounts goal `detailTab` contributions in the experimental Goals surface. This plugin therefore appears at URLs such as `/:companyPrefix/goals/:goalId` rather than adding another sidebar item.
 
 The current plugin issue-list SDK contract also has no `goalId` filter. The worker paginates the company issue list and filters native `goalId` values in the plugin process. For very large companies, a first-class plugin-readable goal filter or a goal detail slot would remove this limitation.
 
-See [CORE_REQUIREMENTS.md](./CORE_REQUIREMENTS.md) for the concise Paperclip-team request list.
+See [CORE_REQUIREMENTS.md](./CORE_REQUIREMENTS.md) for the remaining Paperclip-team request list.
 
 ## Development
 

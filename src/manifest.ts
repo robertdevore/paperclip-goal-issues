@@ -14,9 +14,7 @@ const manifest: PaperclipPluginManifestV1 = {
     "database.namespace.write",
     "goals.read",
     "issues.read",
-    "ui.detailTab.register",
-    "ui.page.register",
-    "ui.sidebar.register"
+    "ui.detailTab.register"
   ],
   entrypoints: {
     worker: "./dist/worker.js",
@@ -29,20 +27,6 @@ const manifest: PaperclipPluginManifestV1 = {
   },
   ui: {
     slots: [
-      {
-        type: "sidebar",
-        id: "goal-issues-sidebar",
-        displayName: "Goal Issues",
-        exportName: "GoalIssuesSidebar",
-        order: 65
-      },
-      {
-        type: "page",
-        id: "goal-issues-page",
-        displayName: "Goal Issues",
-        exportName: "GoalIssuesPage",
-        routePath: "goal-issues"
-      },
       {
         type: "detailTab",
         id: "goal-issues-detail-tab",

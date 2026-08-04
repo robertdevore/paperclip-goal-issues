@@ -25,15 +25,14 @@ function goal(id: string, companyId: string): Goal {
 }
 
 describe("goal issues plugin", () => {
-  it("declares the page, sidebar, and future goal detail extension", () => {
+  it("declares the goal detail extension without adding a sidebar entry", () => {
     expect(manifest.capabilities).toEqual(expect.arrayContaining([
       "database.namespace.migrate", "database.namespace.read", "database.namespace.write",
-      "goals.read", "issues.read", "ui.page.register", "ui.sidebar.register", "ui.detailTab.register",
+      "goals.read", "issues.read", "ui.detailTab.register",
     ]));
-    expect(manifest.ui?.slots).toEqual(expect.arrayContaining([
-      expect.objectContaining({ type: "page", routePath: "goal-issues" }),
+    expect(manifest.ui?.slots).toEqual([
       expect.objectContaining({ type: "detailTab", entityTypes: ["goal"] }),
-    ]));
+    ]);
   });
 
   it("returns core goal-linked issues and plugin-linked issues", async () => {
