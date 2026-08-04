@@ -30,7 +30,7 @@ The matching UI `IssuesListFilters` and host bridge filter should also accept `g
 
 ## Current plugin behavior
 
-Until those capabilities exist, this plugin:
+Until the `goalId` issue filter exists, this plugin:
 
 - reads native `issue.goalId` values by paging the company issue list;
 - stores additional relationships in its isolated plugin database namespace;
