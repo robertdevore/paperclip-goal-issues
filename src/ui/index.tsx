@@ -9,6 +9,8 @@ import type { Goal, Issue } from "@paperclipai/plugin-sdk";
 
 type RelatedIssue = Issue & { relationship: "core" | "plugin" | "both" };
 type GoalIssuesData = { goal: Goal; goals: Goal[]; related: RelatedIssue[]; available: Issue[] };
+type RelatedGoal = Goal & { relationship: "core" | "plugin" | "both" };
+type IssueGoalsData = { issue: Issue; related: RelatedGoal[]; available: Goal[] };
 
 const panelStyle = {
   display: "grid",
@@ -54,6 +56,11 @@ function issueRef(issue: Issue): string {
 function IssueLink({ issue, children }: { issue: Issue; children: ReactNode }) {
   const navigation = useHostNavigation();
   return <a {...navigation.linkProps(`/issues/${encodeURIComponent(issueRef(issue))}`)} style={{ color: "inherit", textDecoration: "none" }}>{children}</a>;
+}
+
+function GoalLink({ goal, children }: { goal: Goal; children: ReactNode }) {
+  const navigation = useHostNavigation();
+  return <a {...navigation.linkProps(`/goals/${encodeURIComponent(goal.id)}`)} style={{ color: "inherit", textDecoration: "none" }}>{children}</a>;
 }
 
 function GoalIssuesSurface({ context }: { context: { companyId: string | null; entityId?: string | null } }) {
@@ -156,4 +163,86 @@ export function GoalIssuesTabBadge({ context }: PluginDetailTabProps) {
 
   if (loading && !data) return <span aria-label="Loading related issue count">(…)</span>;
   return <span aria-label={`${data?.related.length ?? 0} related issues`}>({data?.related.length ?? 0})</span>;
+}
+
+function IssueGoalsSurface({ context }: { context: { companyId: string | null; entityId?: string | null } }) {
+  const [search, setSearch] = useState("");
+  const { data, loading, error, refresh } = usePluginData<IssueGoalsData>("issue-goals", {
+    companyId: context.companyId,
+    issueId: context.entityId,
+  });
+  const linkGoal = usePluginAction("link-goal");
+  const unlinkGoal = usePluginAction("unlink-goal");
+  const [pendingGoalId, setPendingGoalId] = useState<string | null>(null);
+
+  const available = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    if (!needle) return data?.available ?? [];
+    return (data?.available ?? []).filter((goal) => `${goal.title} ${goal.level}`.toLowerCase().includes(needle));
+  }, [data?.available, search]);
+
+  if (!context.companyId) return <p>Select a company to view issue goals.</p>;
+  if (loading && !data) return <p>Loading issue goals…</p>;
+  if (error) return <p role="alert">Unable to load issue goals: {error.message}</p>;
+  if (!data) return null;
+
+  async function mutate(action: typeof linkGoal, goalId: string) {
+    setPendingGoalId(goalId);
+    try {
+      await action({ companyId: context.companyId, issueId: context.entityId, goalId });
+      await refresh();
+    } finally {
+      setPendingGoalId(null);
+    }
+  }
+
+  return (
+    <section style={{ display: "grid", gap: "1rem" }}>
+      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+        <div>
+          <h1 style={{ margin: 0, color: "var(--foreground)", fontSize: "var(--text-compact)", fontWeight: 600 }}>Goals</h1>
+          <p style={{ margin: "0.25rem 0 0", color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>Connect this issue to the goals it supports.</p>
+        </div>
+        <button type="button" style={buttonStyle} onClick={() => void refresh()}>Refresh</button>
+      </header>
+
+      <div style={{ display: "grid", gap: "0.625rem" }}>
+        <h2 style={{ margin: 0, color: "var(--foreground)", fontSize: "var(--text-compact)", fontWeight: 600 }}>Related goals ({data.related.length})</h2>
+        {data.related.length === 0 ? <p style={{ color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>No related goals yet.</p> : (
+          <div style={panelStyle}>
+            {data.related.map((goal) => (
+              <article key={goal.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", padding: "0.625rem 0.75rem", borderBottom: "1px solid var(--border)" }}>
+                <GoalLink goal={goal}>
+                  <div style={{ color: "var(--foreground)", fontSize: "var(--text-compact)" }}>{goal.title}</div>
+                  <small style={{ color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>{goal.level} · {goal.status} · {goal.relationship === "core" ? "Paperclip goal link" : goal.relationship === "both" ? "Paperclip + plugin link" : "Plugin link"}</small>
+                </GoalLink>
+                {goal.relationship === "plugin" || goal.relationship === "both" ? (
+                  <button type="button" style={buttonStyle} disabled={pendingGoalId === goal.id} onClick={() => void mutate(unlinkGoal, goal.id)}>Unlink</button>
+                ) : <small style={{ color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>Core link</small>}
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: "grid", gap: "0.625rem" }}>
+        <h2 style={{ margin: 0, color: "var(--foreground)", fontSize: "var(--text-compact)", fontWeight: 600 }}>Add to a goal</h2>
+        <input style={inputStyle} value={search} onChange={(event) => setSearch(event.currentTarget.value)} placeholder="Search goals" aria-label="Search goals" />
+        {available.length > 0 ? (
+          <div style={panelStyle}>
+            {available.slice(0, 50).map((goal) => (
+              <article key={goal.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", padding: "0.625rem 0.75rem", borderBottom: "1px solid var(--border)" }}>
+                <GoalLink goal={goal}><span style={{ color: "var(--foreground)", fontSize: "var(--text-compact)" }}>{goal.title}</span></GoalLink>
+                <button type="button" style={buttonStyle} disabled={pendingGoalId === goal.id} onClick={() => void mutate(linkGoal, goal.id)}>Link</button>
+              </article>
+            ))}
+          </div>
+        ) : <p style={{ color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>No matching unlinked goals.</p>}
+      </div>
+    </section>
+  );
+}
+
+export function IssueGoalsDetailTab({ context }: PluginDetailTabProps) {
+  return <IssueGoalsSurface context={context} />;
 }

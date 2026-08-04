@@ -4,6 +4,7 @@ import type { Goal, Issue, PluginContext } from "@paperclipai/plugin-sdk";
 const PAGE_SIZE = 200;
 
 type LinkRow = { issue_id: string };
+type GoalLinkRow = { goal_id: string };
 
 function textParam(params: Record<string, unknown>, key: string): string {
   const value = params[key];
@@ -39,11 +40,29 @@ async function getRelatedIssueIds(
   return new Set(rows.map((row) => row.issue_id));
 }
 
+async function getRelatedGoalIds(
+  ctx: PluginContext,
+  companyId: string,
+  issueId: string,
+): Promise<Set<string>> {
+  const rows = await ctx.db.query<GoalLinkRow>(
+    `SELECT goal_id FROM ${tableName(ctx.db.namespace)} WHERE company_id = $1 AND issue_id = $2`,
+    [companyId, issueId],
+  );
+  return new Set(rows.map((row) => row.goal_id));
+}
+
 type GoalIssuesData = {
   goal: Goal;
   goals: Goal[];
   related: Array<Issue & { relationship: "core" | "plugin" | "both" }>;
   available: Issue[];
+};
+
+type IssueGoalsData = {
+  issue: Issue;
+  related: Array<Goal & { relationship: "core" | "plugin" | "both" }>;
+  available: Goal[];
 };
 
 async function readGoalIssues(
@@ -77,6 +96,35 @@ async function readGoalIssues(
   };
 }
 
+async function readIssueGoals(
+  ctx: PluginContext,
+  companyId: string,
+  issueId: string,
+): Promise<IssueGoalsData> {
+  const [issue, goals, pluginGoalIds] = await Promise.all([
+    ctx.issues.get(issueId, companyId),
+    ctx.goals.list({ companyId, limit: 500 }),
+    getRelatedGoalIds(ctx, companyId, issueId),
+  ]);
+  if (!issue) throw new Error("Issue not found");
+
+  const related = goals
+    .filter((goal) => goal.id === issue.goalId || pluginGoalIds.has(goal.id))
+    .map((goal) => ({
+      ...goal,
+      relationship: (goal.id === issue.goalId
+        ? (pluginGoalIds.has(goal.id) ? "both" : "core")
+        : "plugin") as "core" | "plugin" | "both",
+    }));
+  const relatedIds = new Set(related.map((goal) => goal.id));
+
+  return {
+    issue,
+    related,
+    available: goals.filter((goal) => !relatedIds.has(goal.id)),
+  };
+}
+
 const plugin = definePlugin({
   async setup(ctx) {
     ctx.data.register("goal-issues", async (params): Promise<GoalIssuesData> => {
@@ -86,6 +134,12 @@ const plugin = definePlugin({
       const goalId = requestedGoalId || goals[0]?.id;
       if (!goalId) throw new Error("No goals found");
       return readGoalIssues(ctx, companyId, goalId);
+    });
+
+    ctx.data.register("issue-goals", async (params): Promise<IssueGoalsData> => {
+      const companyId = textParam(params, "companyId");
+      const issueId = textParam(params, "issueId");
+      return readIssueGoals(ctx, companyId, issueId);
     });
 
     ctx.actions.register("link-issue", async (params) => {
@@ -113,6 +167,39 @@ const plugin = definePlugin({
       const issueId = textParam(params, "issueId");
       const goal = await ctx.goals.get(goalId, companyId);
       if (!goal) throw new Error("Goal not found");
+      await ctx.db.execute(
+        `DELETE FROM ${tableName(ctx.db.namespace)}
+         WHERE company_id = $1 AND goal_id = $2 AND issue_id = $3`,
+        [companyId, goalId, issueId],
+      );
+      return { linked: false, issueId, goalId };
+    });
+
+    ctx.actions.register("link-goal", async (params) => {
+      const companyId = textParam(params, "companyId");
+      const issueId = textParam(params, "issueId");
+      const goalId = textParam(params, "goalId");
+      const [issue, goal] = await Promise.all([
+        ctx.issues.get(issueId, companyId),
+        ctx.goals.get(goalId, companyId),
+      ]);
+      if (!issue) throw new Error("Issue not found");
+      if (!goal) throw new Error("Goal not found");
+      await ctx.db.execute(
+        `INSERT INTO ${tableName(ctx.db.namespace)} (company_id, goal_id, issue_id)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (goal_id, issue_id) DO NOTHING`,
+        [companyId, goalId, issueId],
+      );
+      return { linked: true, issueId, goalId };
+    });
+
+    ctx.actions.register("unlink-goal", async (params) => {
+      const companyId = textParam(params, "companyId");
+      const issueId = textParam(params, "issueId");
+      const goalId = textParam(params, "goalId");
+      const issue = await ctx.issues.get(issueId, companyId);
+      if (!issue) throw new Error("Issue not found");
       await ctx.db.execute(
         `DELETE FROM ${tableName(ctx.db.namespace)}
          WHERE company_id = $1 AND goal_id = $2 AND issue_id = $3`,

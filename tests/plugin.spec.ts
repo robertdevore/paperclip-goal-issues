@@ -30,9 +30,10 @@ describe("goal issues plugin", () => {
       "database.namespace.migrate", "database.namespace.read", "database.namespace.write",
       "goals.read", "issues.read", "ui.detailTab.register",
     ]));
-    expect(manifest.ui?.slots).toEqual([
+    expect(manifest.ui?.slots).toEqual(expect.arrayContaining([
       expect.objectContaining({ type: "detailTab", entityTypes: ["goal"], badgeExportName: "GoalIssuesTabBadge" }),
-    ]);
+      expect.objectContaining({ type: "detailTab", entityTypes: ["issue"], exportName: "IssueGoalsDetailTab" }),
+    ]));
   });
 
   it("returns core goal-linked issues and plugin-linked issues", async () => {
@@ -59,9 +60,30 @@ describe("goal issues plugin", () => {
 
     await harness.performAction("link-issue", { companyId, goalId, issueId: "issue-1" });
     await harness.performAction("unlink-issue", { companyId, goalId, issueId: "issue-1" });
+    await harness.performAction("link-goal", { companyId, goalId, issueId: "issue-1" });
+    await harness.performAction("unlink-goal", { companyId, goalId, issueId: "issue-1" });
     expect(harness.dbExecutes.map((entry) => entry.sql)).toEqual([
       expect.stringContaining("INSERT INTO"),
       expect.stringContaining("DELETE FROM"),
+      expect.stringContaining("INSERT INTO"),
+      expect.stringContaining("DELETE FROM"),
     ]);
+  });
+
+  it("returns core and plugin-linked goals for an issue", async () => {
+    const companyId = "company-1";
+    const coreGoalId = "goal-1";
+    const pluginGoalId = "goal-2";
+    const harness = createTestHarness({ manifest });
+    harness.seed({
+      goals: [goal(coreGoalId, companyId), goal(pluginGoalId, companyId)],
+      issues: [issue("issue-1", companyId, coreGoalId)],
+    });
+    await plugin.definition.setup(harness.ctx);
+    harness.ctx.db.query = async <T,>() => [{ goal_id: pluginGoalId } as T];
+
+    const data = await harness.getData<{ related: Goal[]; available: Goal[] }>("issue-goals", { companyId, issueId: "issue-1" });
+    expect(data.related.map((row) => row.id)).toEqual([coreGoalId, pluginGoalId]);
+    expect(data.available).toEqual([]);
   });
 });

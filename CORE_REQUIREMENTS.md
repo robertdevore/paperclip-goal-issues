@@ -1,6 +1,6 @@
 # Paperclip core requirements
 
-These are the remaining core capabilities needed to make this plugin scale well. The goal detail surface is now implemented on the Paperclip development branch.
+These are the remaining core capabilities needed to make this plugin scale well. The goal detail surface is now implemented on the Paperclip development branch. The issue detail surface already supports plugin `detailTab` contributions, so issue-to-goal linking is implemented entirely in the external plugin.
 
 ## 1. Render goal detail plugin slots — implemented
 

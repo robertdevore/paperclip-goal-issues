@@ -5,10 +5,12 @@ Goal Issues is an external Paperclip plugin that adds a Related Issues tab to Pa
 ## What it provides
 
 - A `Related Issues` tab on the goal detail page.
+- A `Goals` tab on the issue detail page for attaching the issue to one or more goals.
 - Goal selection, related-issue display, issue navigation, search, link, unlink, and refresh.
 - Native goal links are shown automatically as `Paperclip goal link`.
 - Extra relationships are stored in the plugin's isolated database namespace as `Plugin link`.
 - A `detailTab` contribution for goals is declared for hosts that render goal detail slots.
+- A second `detailTab` contribution targets issue detail slots, which Paperclip already renders on issue pages.
 - The tab label includes a live `(N)` count from the same goal-scoped data used by the tab.
 
 The Paperclip core branch now mounts goal `detailTab` contributions in the experimental Goals surface. This plugin therefore appears at URLs such as `/:companyPrefix/goals/:goalId` rather than adding another sidebar item.
@@ -41,5 +43,13 @@ paperclipai plugin install /Users/robertdevore/2026/paperclip-goal-issues
 5. Confirm it moved into `Related issues` and shows `Plugin link`.
 
 Native Paperclip goal links show as `Paperclip goal link` and cannot be removed by this plugin. Plugin-owned links can be removed with `Unlink`.
+
+## Add a goal from an issue
+
+1. Open an issue, such as `/KUJ/issues/KUJ-83`.
+2. Select the plugin's `Goals` tab.
+3. Under `Add to a goal`, search by goal title.
+4. Click `Link` beside the goal.
+5. Confirm it appears under `Related goals` and shows `Plugin link`.
 
 The package snapshots the SDK and shared types from `/Users/robertdevore/2026/paperclip` for local development. Replace those file dependencies with published versions before publishing.
