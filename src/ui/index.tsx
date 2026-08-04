@@ -10,6 +10,43 @@ import type { Goal, Issue } from "@paperclipai/plugin-sdk";
 type RelatedIssue = Issue & { relationship: "core" | "plugin" | "both" };
 type GoalIssuesData = { goal: Goal; goals: Goal[]; related: RelatedIssue[]; available: Issue[] };
 
+const panelStyle = {
+  display: "grid",
+  gap: "0.75rem",
+  border: "1px solid var(--border)",
+  borderRadius: "var(--radius-md)",
+  background: "var(--background)",
+  overflow: "hidden",
+} as const;
+
+const buttonStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "2rem",
+  padding: "0.375rem 0.625rem",
+  border: "1px solid var(--border)",
+  borderRadius: "var(--radius-md)",
+  background: "var(--background)",
+  color: "var(--foreground)",
+  fontSize: "var(--text-micro)",
+  fontWeight: 500,
+  cursor: "pointer",
+} as const;
+
+const inputStyle = {
+  width: "100%",
+  minHeight: "2.25rem",
+  padding: "0.5rem 0.625rem",
+  border: "1px solid var(--border)",
+  borderRadius: "var(--radius-md)",
+  background: "transparent",
+  color: "var(--foreground)",
+  fontSize: "var(--text-compact)",
+  outline: "none",
+  boxSizing: "border-box",
+} as const;
+
 function issueRef(issue: Issue): string {
   return issue.identifier ?? issue.id;
 }
@@ -64,37 +101,44 @@ function GoalIssuesSurface({ context }: { context: { companyId: string | null; e
     <section style={{ display: "grid", gap: "1rem" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: "1.25rem" }}>Related Issues</h1>
-          <p style={{ margin: "0.25rem 0 0", opacity: 0.7 }}>Track the work that moves a goal forward.</p>
+          <h1 style={{ margin: 0, color: "var(--foreground)", fontSize: "var(--text-compact)", fontWeight: 600 }}>Related Issues</h1>
+          <p style={{ margin: "0.25rem 0 0", color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>Track the work that moves a goal forward.</p>
         </div>
-        <button type="button" onClick={() => void refresh()}>Refresh</button>
+        <button type="button" style={buttonStyle} onClick={() => void refresh()}>Refresh</button>
       </header>
 
       <div style={{ display: "grid", gap: "0.625rem" }}>
-        <h2 style={{ margin: 0, fontSize: "1rem" }}>Related issues ({data.related.length})</h2>
-        {data.related.length === 0 ? <p style={{ opacity: 0.7 }}>No related issues yet.</p> : data.related.map((issue) => (
-          <article key={issue.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", border: "1px solid currentColor", borderRadius: "0.5rem", padding: "0.75rem" }}>
-            <IssueLink issue={issue}>
-              <div><strong>{issue.identifier ?? issue.id.slice(0, 8)}</strong> {issue.title}</div>
-              <small style={{ opacity: 0.7 }}>{issue.status} · {issue.relationship === "core" ? "Paperclip goal link" : issue.relationship === "both" ? "Paperclip + plugin link" : "Plugin link"}</small>
-            </IssueLink>
-            {issue.relationship === "plugin" || issue.relationship === "both" ? (
-              <button type="button" disabled={pendingIssueId === issue.id} onClick={() => void mutate(unlinkIssue, issue.id)}>Unlink</button>
-            ) : <small style={{ opacity: 0.7 }}>Core link</small>}
-          </article>
-        ))}
+        <h2 style={{ margin: 0, color: "var(--foreground)", fontSize: "var(--text-compact)", fontWeight: 600 }}>Related issues ({data.related.length})</h2>
+        {data.related.length === 0 ? <p style={{ color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>No related issues yet.</p> : (
+          <div style={panelStyle}>
+            {data.related.map((issue) => (
+              <article key={issue.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", padding: "0.625rem 0.75rem", borderBottom: "1px solid var(--border)" }}>
+                <IssueLink issue={issue}>
+                  <div style={{ color: "var(--foreground)", fontSize: "var(--text-compact)" }}><strong style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: "var(--text-micro)" }}>{issue.identifier ?? issue.id.slice(0, 8)}</strong> {issue.title}</div>
+                  <small style={{ color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>{issue.status} · {issue.relationship === "core" ? "Paperclip goal link" : issue.relationship === "both" ? "Paperclip + plugin link" : "Plugin link"}</small>
+                </IssueLink>
+                {issue.relationship === "plugin" || issue.relationship === "both" ? (
+                  <button type="button" style={buttonStyle} disabled={pendingIssueId === issue.id} onClick={() => void mutate(unlinkIssue, issue.id)}>Unlink</button>
+                ) : <small style={{ color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>Core link</small>}
+              </article>
+            ))}
+          </div>
+        )}
       </div>
 
       <div style={{ display: "grid", gap: "0.625rem" }}>
-        <h2 style={{ margin: 0, fontSize: "1rem" }}>Add an issue</h2>
-        <input value={search} onChange={(event) => setSearch(event.currentTarget.value)} placeholder="Search available issues" aria-label="Search available issues" />
-        {available.slice(0, 50).map((issue) => (
-          <article key={issue.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", padding: "0.5rem 0" }}>
-            <IssueLink issue={issue}><strong>{issue.identifier ?? issue.id.slice(0, 8)}</strong> {issue.title}</IssueLink>
-            <button type="button" disabled={pendingIssueId === issue.id} onClick={() => void mutate(linkIssue, issue.id)}>Link</button>
-          </article>
-        ))}
-        {available.length === 0 && <p style={{ opacity: 0.7 }}>No matching unlinked issues.</p>}
+        <h2 style={{ margin: 0, color: "var(--foreground)", fontSize: "var(--text-compact)", fontWeight: 600 }}>Add an issue</h2>
+        <input style={inputStyle} value={search} onChange={(event) => setSearch(event.currentTarget.value)} placeholder="Search available issues" aria-label="Search available issues" />
+        {available.length > 0 ? (
+          <div style={panelStyle}>
+            {available.slice(0, 50).map((issue) => (
+              <article key={issue.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", padding: "0.625rem 0.75rem", borderBottom: "1px solid var(--border)" }}>
+                <IssueLink issue={issue}><span style={{ color: "var(--foreground)", fontSize: "var(--text-compact)" }}><strong style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: "var(--text-micro)" }}>{issue.identifier ?? issue.id.slice(0, 8)}</strong> {issue.title}</span></IssueLink>
+                <button type="button" style={buttonStyle} disabled={pendingIssueId === issue.id} onClick={() => void mutate(linkIssue, issue.id)}>Link</button>
+              </article>
+            ))}
+          </div>
+        ) : <p style={{ color: "var(--muted-foreground)", fontSize: "var(--text-micro)" }}>No matching unlinked issues.</p>}
       </div>
     </section>
   );
