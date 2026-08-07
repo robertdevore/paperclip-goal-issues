@@ -2,7 +2,6 @@
   "name": "@robertdevore/paperclip-goal-issues",
   "version": "0.1.0",
   "type": "module",
-  "private": true,
   "description": "Track issues related to Paperclip goals without changing Paperclip core.",
   "scripts": {
     "build": "node ./esbuild.config.mjs",
@@ -10,7 +9,21 @@
     "dev": "node ./esbuild.config.mjs --watch",
     "dev:ui": "paperclip-plugin-dev-server --root . --ui-dir dist/ui --port 4177",
     "test": "vitest run --config ./vitest.config.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run typecheck && npm test && npm run build"
+  },
+  "files": [
+    "dist",
+    "migrations",
+    "README.md",
+    "CORE_REQUIREMENTS.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "paperclipPlugin": {
     "manifest": "./dist/manifest.js",
@@ -24,14 +37,8 @@
   ],
   "author": "Robert DeVore",
   "license": "MIT",
-  "pnpm": {
-    "overrides": {
-      "@paperclipai/shared": "file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz"
-    }
-  },
   "devDependencies": {
-    "@paperclipai/shared": "file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz",
-    "@paperclipai/plugin-sdk": "file:.paperclip-sdk/paperclipai-plugin-sdk-1.0.0.tgz",
+    "@paperclipai/plugin-sdk": "2026.722.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.2",
     "@types/node": "^24.6.0",

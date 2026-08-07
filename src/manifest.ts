@@ -1,5 +1,28 @@
 import type { PaperclipPluginManifestV1 } from "@paperclipai/plugin-sdk";
 
+// `badgeExportName` is supported by Paperclip hosts that implement dynamic
+// detail-tab badges. Keep the declaration in the emitted manifest while
+// allowing this package to typecheck against the currently published SDK,
+// whose type definition predates that optional field.
+const goalIssuesSlot = {
+  type: "detailTab" as const,
+  id: "goal-issues-detail-tab",
+  displayName: "Related Issues",
+  exportName: "GoalIssuesDetailTab",
+  badgeExportName: "GoalIssuesTabBadge",
+  entityTypes: ["goal" as const],
+  order: 40,
+};
+
+const issueGoalsSlot = {
+  type: "detailTab" as const,
+  id: "issue-goals-detail-tab",
+  displayName: "Goals",
+  exportName: "IssueGoalsDetailTab",
+  entityTypes: ["issue" as const],
+  order: 40,
+};
+
 const manifest: PaperclipPluginManifestV1 = {
   id: "robertdevore.paperclip-goal-issues",
   apiVersion: 1,
@@ -26,25 +49,7 @@ const manifest: PaperclipPluginManifestV1 = {
     coreReadTables: ["goals", "issues"]
   },
   ui: {
-    slots: [
-      {
-        type: "detailTab",
-        id: "goal-issues-detail-tab",
-        displayName: "Related Issues",
-        exportName: "GoalIssuesDetailTab",
-        badgeExportName: "GoalIssuesTabBadge",
-        entityTypes: ["goal"],
-        order: 40
-      },
-      {
-        type: "detailTab",
-        id: "issue-goals-detail-tab",
-        displayName: "Goals",
-        exportName: "IssueGoalsDetailTab",
-        entityTypes: ["issue"],
-        order: 40
-      }
-    ]
+    slots: [goalIssuesSlot, issueGoalsSlot]
   }
 };
 

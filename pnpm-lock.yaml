@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@paperclipai/shared': file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz
-
 importers:
 
   .:
@@ -16,11 +13,8 @@ importers:
         version: 19.2.8
     devDependencies:
       '@paperclipai/plugin-sdk':
-        specifier: file:.paperclip-sdk/paperclipai-plugin-sdk-1.0.0.tgz
-        version: file:.paperclip-sdk/paperclipai-plugin-sdk-1.0.0.tgz(react@19.2.8)
-      '@paperclipai/shared':
-        specifier: file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz
-        version: file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz
+        specifier: 2026.722.0
+        version: 2026.722.0(react@19.2.8)
       '@rollup/plugin-node-resolve':
         specifier: ^16.0.1
         version: 16.0.3(rollup@4.62.4)
@@ -216,9 +210,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@paperclipai/plugin-sdk@file:.paperclip-sdk/paperclipai-plugin-sdk-1.0.0.tgz':
-    resolution: {integrity: sha512-zTvhlCZvOHITksnoP0jq7BkvZoWpHmBgkymGWDs8w36XGjlF8dU2OYfPdkUOYbFtNUOdAf2D3Q35juyNcBe0mQ==, tarball: file:.paperclip-sdk/paperclipai-plugin-sdk-1.0.0.tgz}
-    version: 1.0.0
+  '@paperclipai/plugin-sdk@2026.722.0':
+    resolution: {integrity: sha512-2rMJCBo8ZAouuMsapdaY4/l+oHmrXKHW/k/HfPOLCxFng7+g04c5JhoFq+/ptGfNcW3kXzs34y7brviDCml06Q==}
     hasBin: true
     peerDependencies:
       react: '>=18'
@@ -226,9 +219,8 @@ packages:
       react:
         optional: true
 
-  '@paperclipai/shared@file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz':
-    resolution: {integrity: sha512-eRIOKmVZ0vgehfSKyR3117FnPnY4jHt9yLSduobpkb9KQXFccCM7BM76MY0Ijfe6Eg1u9OL0/3tp6uTNWCiWtg==, tarball: file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz}
-    version: 0.3.1
+  '@paperclipai/shared@2026.722.0':
+    resolution: {integrity: sha512-JciI6EbtNwHSeoyN5ZkshwqpyfIluyO46JHp8I7pPCvpJ7Uv7MSZEBs3lKXdXLadFEN6qzfwNmf39xjIFC8isA==}
 
   '@rollup/plugin-node-resolve@16.0.3':
     resolution: {integrity: sha512-lUYM3UBGuM93CnMPG1YocWu7X802BrNF3jW2zny5gQyLQgRFJhV1Sq0Zi74+dh/6NBx1DxFC4b4GXg9wUCG5Qg==}
@@ -790,14 +782,14 @@ snapshots:
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
-  '@paperclipai/plugin-sdk@file:.paperclip-sdk/paperclipai-plugin-sdk-1.0.0.tgz(react@19.2.8)':
+  '@paperclipai/plugin-sdk@2026.722.0(react@19.2.8)':
     dependencies:
-      '@paperclipai/shared': file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz
+      '@paperclipai/shared': 2026.722.0
       zod: 3.25.76
     optionalDependencies:
       react: 19.2.8
 
-  '@paperclipai/shared@file:.paperclip-sdk/paperclipai-shared-0.3.1.tgz':
+  '@paperclipai/shared@2026.722.0':
     dependencies:
       zod: 3.25.76
 
