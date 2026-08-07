@@ -1,4 +1,5 @@
 import {
+  useHostLocation,
   useHostNavigation,
   usePluginAction,
   usePluginData,
@@ -53,14 +54,22 @@ function issueRef(issue: Issue): string {
   return issue.identifier ?? issue.id;
 }
 
+function useCompanyScopedPath(path: string): string {
+  const { pathname } = useHostLocation();
+  const companyPrefix = pathname.split("/").filter(Boolean)[0];
+  return companyPrefix ? `/${companyPrefix}${path}` : path;
+}
+
 function IssueLink({ issue, children }: { issue: Issue; children: ReactNode }) {
   const navigation = useHostNavigation();
-  return <a {...navigation.linkProps(`/issues/${encodeURIComponent(issueRef(issue))}`)} style={{ color: "inherit", textDecoration: "none" }}>{children}</a>;
+  const href = useCompanyScopedPath(`/issues/${encodeURIComponent(issueRef(issue))}`);
+  return <a {...navigation.linkProps(href)} style={{ color: "inherit", textDecoration: "none" }}>{children}</a>;
 }
 
 function GoalLink({ goal, children }: { goal: Goal; children: ReactNode }) {
   const navigation = useHostNavigation();
-  return <a {...navigation.linkProps(`/goals/${encodeURIComponent(goal.id)}`)} style={{ color: "inherit", textDecoration: "none" }}>{children}</a>;
+  const href = useCompanyScopedPath(`/goals/${encodeURIComponent(goal.id)}`);
+  return <a {...navigation.linkProps(href)} style={{ color: "inherit", textDecoration: "none" }}>{children}</a>;
 }
 
 function GoalIssuesSurface({ context }: { context: { companyId: string | null; entityId?: string | null } }) {
