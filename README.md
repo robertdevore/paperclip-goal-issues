@@ -51,6 +51,18 @@ paperclipai plugin uninstall robertdevore.paperclip-goal-issues
 
 Uninstalling without a purge keeps plugin data available for a later reinstall. Use the Paperclip plugin uninstall option for a full data purge only when that is intentional.
 
+## Publish (maintainers)
+
+The package is scoped to the npm account that owns `@robertdevore`. Authenticate to npm before publishing the first version:
+
+```bash
+npm login --auth-type=web
+npm whoami
+npm publish --access public
+```
+
+If `npm whoami` returns `E401`, publishing will fail at the registry with a misleading `E404` permission response. Confirm that `npm whoami` prints the account that owns the `@robertdevore` scope. The publish preflight automatically runs typecheck, tests, and the production build.
+
 ## How it works
 
 - Native `issues.goal_id` relationships appear as `Paperclip goal link` and cannot be removed by this plugin.
