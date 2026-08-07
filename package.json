@@ -30,6 +30,14 @@
     "worker": "./dist/worker.js",
     "ui": "./dist/ui/"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertdevore/paperclip-goal-issues.git"
+  },
+  "homepage": "https://github.com/robertdevore/paperclip-goal-issues#readme",
+  "bugs": {
+    "url": "https://github.com/robertdevore/paperclip-goal-issues/issues"
+  },
   "keywords": [
     "paperclip",
     "plugin",
