@@ -9,7 +9,7 @@ const now = new Date();
 function issue(id: string, companyId: string, goalId: string | null): Issue {
   return {
     id, companyId, projectId: null, projectWorkspaceId: null, goalId, parentId: null,
-    title: `Issue ${id}`, description: null, status: "todo", workMode: "standard", priority: "medium",
+    title: `Issue ${id}`, description: null, reviewPolicy: null, status: "todo", workMode: "standard", priority: "medium",
     assigneeAgentId: null, assigneeUserId: null, checkoutRunId: null, executionRunId: null,
     executionAgentNameKey: null, executionLockedAt: null, createdByAgentId: null, createdByUserId: null,
     responsibleUserId: null, issueNumber: null, identifier: `PAP-${id}`, originKind: "manual",

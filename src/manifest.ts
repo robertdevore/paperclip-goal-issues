@@ -26,7 +26,7 @@ const issueGoalsSlot = {
 const manifest: PaperclipPluginManifestV1 = {
   id: "robertdevore.paperclip-goal-issues",
   apiVersion: 1,
-  version: "0.1.0",
+  version: "0.1.1",
   displayName: "Goal Issues",
   description: "Track issues related to Paperclip goals without changing Paperclip core.",
   author: "Robert DeVore",

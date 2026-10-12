@@ -6,7 +6,7 @@ This is a ready-to-install Paperclip plugin.
 
 - npm: [`@robertdevore/paperclip-goal-issues`](https://www.npmjs.com/package/@robertdevore/paperclip-goal-issues)
 - Source and releases: [github.com/robertdevore/paperclip-goal-issues](https://github.com/robertdevore/paperclip-goal-issues)
-- Current package version: `v0.1.0`
+- Current package version: `v0.1.1`
 
 ## Install the published plugin
 
